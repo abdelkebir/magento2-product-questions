@@ -1,0 +1,68 @@
+<a href="#" class="open-question-form">
+  <span>Add your question</span>
+</a>
+
+<div id="question-form-popup">
+  <form class="form contact"
+        action="<?= $block->escapeUrl($block->getFormAction()) ?>"
+        id="productquestions-form"
+        method="post"
+        data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>"
+        data-mage-init='{"validation":{}}'>
+      <fieldset class="fieldset">
+        <div class="field name required">
+              <label class="label" for="name"><span><?= $block->escapeHtml(__('Name')) ?></span></label>
+              <div class="control">
+                  <input name="name" id="name" title="<?= $block->escapeHtmlAttr(__('Name')) ?>" class="input-text" type="text" data-validate="{required:true}"/>
+              </div>
+          </div>
+          <div class="field email required">
+              <label class="label" for="email"><span><?= $block->escapeHtml(__('Email')) ?></span></label>
+              <div class="control">
+                  <input name="email" id="email" title="<?= $block->escapeHtmlAttr(__('Email')) ?>" class="input-text" type="email" data-validate="{required:true, 'validate-email':true}"/>
+              </div>
+          </div>
+          <div class="field question required">
+              <label class="label" for="question"><span><?= $block->escapeHtml(__('Question')) ?></span></label>
+              <div class="control">
+                  <textarea name="question" id="question" title="<?= $block->escapeHtmlAttr(__('Question')) ?>" class="input-text" cols="5" rows="3" data-validate="{required:true}"></textarea>
+              </div>
+          </div>
+          <?= $block->getChildHtml('form.additional.info') ?>
+      </fieldset>
+      <div class="actions-toolbar">
+          <div class="primary">
+              <input type="hidden" name="hideit" id="hideit" value="" />
+              <button type="submit" title="<?= $block->escapeHtmlAttr(__('Submit')) ?>" class="action submit primary">
+                  <span><?= $block->escapeHtml(__('Submit')) ?></span>
+              </button>
+          </div>
+      </div>
+  </form>
+</div>
+<script>
+   require(
+       [
+           'jquery',
+           'Magento_Ui/js/modal/modal'
+       ],
+       function (
+           $,
+           modal
+       ) {
+           var modaloptions = {
+               type: 'popup',
+               modalClass: 'question-form-modal-popup',
+               responsive: false,
+               innerScroll: false,
+               clickableOverlay: true,
+               title: 'Post your question',
+               buttons: []
+           };
+           $('.open-question-form').click(function(){
+              var callforoption = modal(modaloptions, $('#question-form-popup'));
+              $('#question-form-popup').modal('openModal');
+           });
+       }
+   );
+</script>
