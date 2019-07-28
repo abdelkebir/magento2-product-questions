@@ -1,15 +1,13 @@
-<a href="#" class="open-question-form">
-  <span>Add your question</span>
-</a>
-
 <div id="question-form-popup">
-  <form class="form contact"
+  <form class="form productQuestion"
         action="<?= $block->escapeUrl($block->getFormAction()) ?>"
         id="productquestions-form"
         method="post"
         data-hasrequired="<?= $block->escapeHtmlAttr(__('* Required Fields')) ?>"
         data-mage-init='{"validation":{}}'>
       <fieldset class="fieldset">
+        <legend class="legend"><span>Ask us a question about this product</span></legend>
+        <div class="field note no-label">Feel free to ask us any question about this product by filling this form and sending it, we will do our best to respond as quickly as we can.</div>
         <div class="field name required">
               <label class="label" for="name"><span><?= $block->escapeHtml(__('Name')) ?></span></label>
               <div class="control">
@@ -40,29 +38,3 @@
       </div>
   </form>
 </div>
-<script>
-   require(
-       [
-           'jquery',
-           'Magento_Ui/js/modal/modal'
-       ],
-       function (
-           $,
-           modal
-       ) {
-           var modaloptions = {
-               type: 'popup',
-               modalClass: 'question-form-modal-popup',
-               responsive: false,
-               innerScroll: false,
-               clickableOverlay: true,
-               title: 'Post your question',
-               buttons: []
-           };
-           $('.open-question-form').click(function(){
-              var callforoption = modal(modaloptions, $('#question-form-popup'));
-              $('#question-form-popup').modal('openModal');
-           });
-       }
-   );
-</script>
