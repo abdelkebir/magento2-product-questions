@@ -1,64 +1,39 @@
 <?php
-/**
- *
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
- */
-
 namespace Godogi\ProductQuestions\Controller\Index;
 
-use Magento\Framework\App\Action\HttpPostActionInterface as HttpPostActionInterface;
-use Magento\Contact\Model\ConfigInterface;
-use Magento\Contact\Model\MailInterface;
 use Magento\Framework\App\Action\Context;
-use Magento\Framework\App\Request\DataPersistorInterface;
-use Magento\Framework\Controller\Result\Redirect;
-use Magento\Framework\Exception\LocalizedException;
-use Psr\Log\LoggerInterface;
-use Magento\Framework\App\ObjectManager;
-use Magento\Framework\DataObject;
+use Magento\Framework\Controller\ResultFactory;
+use Godogi\ProductQuestions\Model\QuestionFactory;
 
-class Post extends \Magento\Contact\Controller\Index implements HttpPostActionInterface
+class Post extends \Magento\Framework\App\Action\Action
 {
     /**
-     * @var DataPersistorInterface
-     */
-    private $dataPersistor;
+    * Question model factory
+    *
+    * @var QuestionFactory
+    */
+    protected $_questionFactory;
 
     /**
-     * @var Context
-     */
-    private $context;
+    * Result factory
+    *
+    * @var ResultFactory
+    */
+    protected $_resultFactory;
 
-    /**
-     * @var MailInterface
-     */
-    private $mail;
-
-    /**
-     * @var LoggerInterface
-     */
-    private $logger;
 
     /**
      * @param Context $context
-     * @param ConfigInterface $contactsConfig
-     * @param MailInterface $mail
-     * @param DataPersistorInterface $dataPersistor
-     * @param LoggerInterface $logger
+     * @param QuestionFactory $questionFactory
      */
     public function __construct(
         Context $context,
-        ConfigInterface $contactsConfig,
-        MailInterface $mail,
-        DataPersistorInterface $dataPersistor,
-        LoggerInterface $logger = null
+        QuestionFactory $questionFactory,
+        ResultFactory $resultFactory
     ) {
-        parent::__construct($context, $contactsConfig);
-        $this->context = $context;
-        $this->mail = $mail;
-        $this->dataPersistor = $dataPersistor;
-        $this->logger = $logger ?: ObjectManager::getInstance()->get(LoggerInterface::class);
+        parent::__construct($context);
+        $this->_questionFactory = $questionFactory;
+        $this->_resultFactory = $resultFactory;
     }
 
     /**
@@ -71,54 +46,30 @@ class Post extends \Magento\Contact\Controller\Index implements HttpPostActionIn
         if (!$this->getRequest()->isPost()) {
             return $this->resultRedirectFactory->create()->setPath('*/*/');
         }
+
+
+        $resultRedirect = $this->_resultFactory->create(ResultFactory::TYPE_REDIRECT);
+        $resultRedirect->setUrl($this->_redirect->getRefererUrl());
         try {
-            $this->sendEmail($this->validatedParams());
+            $postData = $this->getRequest()->getPostValue();
+
+            $questionModel = $this->_questionFactory->create();
+            $questionModel->setData($postData);
+
+            $questionModel->save();
             $this->messageManager->addSuccessMessage(
-                __('Thanks for contacting us with your comments and questions. We\'ll respond to you very soon.')
+                __('Thanks for your question, we will respond very soon to it.')
             );
-        } catch (LocalizedException $e) {
-            $this->messageManager->addErrorMessage($e->getMessage());
+            return $resultRedirect;
         } catch (\Exception $e) {
-            $this->logger->critical($e);
             $this->messageManager->addErrorMessage(
                 __('An error occurred while processing your form. Please try again later.')
             );
-        }
-        return $this->resultRedirectFactory->create()->setPath('contact/index');
-    }
+            $this->messageManager->addErrorMessage(
+                $e->getMessage()
+            );
 
-    /**
-     * @param array $post Post data from contact form
-     * @return void
-     */
-    private function sendEmail($post)
-    {
-        $this->mail->send(
-            $post['email'],
-            ['data' => new DataObject($post)]
-        );
-    }
-
-    /**
-     * @return array
-     * @throws \Exception
-     */
-    private function validatedParams()
-    {
-        $request = $this->getRequest();
-        if (trim($request->getParam('name')) === '') {
-            throw new LocalizedException(__('Enter the Name and try again.'));
+            return $resultRedirect;
         }
-        if (trim($request->getParam('question')) === '') {
-            throw new LocalizedException(__('Enter the question and try again.'));
-        }
-        if (false === \strpos($request->getParam('email'), '@')) {
-            throw new LocalizedException(__('The email address is invalid. Verify the email address and try again.'));
-        }
-        if (trim($request->getParam('hideit')) !== '') {
-            throw new \Exception();
-        }
-
-        return $request->getParams();
     }
 }
