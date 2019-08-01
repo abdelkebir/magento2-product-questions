@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Godogi_ProductQuestions::questions_answers"  title="Product Questions"  module="Godogi_ProductQuestions" sortOrder="50" resource="Godogi_ProductQuestions::questions_answers" action="godogi_productquestions/qa/index"  parent="Magento_Catalog::inventory"/>
+    </menu>
+</config>
